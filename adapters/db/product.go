@@ -26,12 +26,15 @@ func (p *ProductDb) Get(id string) (application.ProductInterface, error) {
 		return nil, err
 	}
 	err = stmt.Close()
+	if err != nil {
+		return nil, err
+	}
 	return &product, nil
 }
 
 func (p *ProductDb) Save(product application.ProductInterface) (application.ProductInterface, error) {
 	var rows int
-	p.db.QueryRow("select id from products where id = ?", product.GetId()).Scan(&rows)
+	p.db.QueryRow("select count(id) from products where id = ?", product.GetId()).Scan(&rows)
 	if rows == 0 {
 		_, err := p.create(product)
 		if err != nil {
